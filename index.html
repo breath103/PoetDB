@@ -1,0 +1,390 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>SKKU</title>
+		
+		<style>
+		
+		
+		DIV
+		{
+			font-family : "dotum";
+			font-size : 15px;
+		}
+		#loadingDiv
+		{
+			background-color:black;
+			left:0px;
+			top:0px;
+			width:100%;
+			height:100%;
+			text-align:center;
+			vertical-align:middle;
+			font-size:40px;
+			color:white;
+			position:absolute;
+			display:none;
+		}
+		.CommentDiv
+		{
+			border-color : blue;
+			border-width : 1px;
+			border-style : solid;
+			text-align:center;
+			background-color : #FF3366;
+		}
+		.HighLightWord
+		{
+			background-color : yellow;
+			display : inline;
+		}
+		.SearchObjectDiv
+		{
+			background-color : green;
+			display : inline-block;
+		}
+		.Poet
+		.PoetDiv
+		{
+			border-color : black;
+			border-width : 3px;
+			border-style : solid;
+			text-align:center;
+			
+			background-color : #33CCFF;
+		}
+		.PoetDiv DIV
+		{
+			border-color : blue;
+			border-width : 1px;
+			border-style : solid;
+			text-align:center;
+			background-color : #FF3366;
+			display: inline-block;
+			border-radius: 13px;
+			
+			width:10px;
+			height:13px;
+			overflow:hidden;
+		}
+		.header-outer
+		{
+			width  : 100%;
+			height : 140px;
+			text-align : center;
+			vertical-align:middle;	
+			-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.25),0 -1px 0 rgba(0,0,0,0.1) inset;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.25),0 -1px 0 rgba(0,0,0,0.1) inset;
+			background: #00A0D1;
+			
+			color: white;
+			font-family: 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+			font-size: 52px;
+			font-style: normal;
+			font-variant: normal;
+			font-weight: 300;
+			text-decoration:none;
+		}
+		
+		.searchBar
+		{
+			display:block;
+			height:20%;
+		}
+		#query_input
+		{
+			background-color : rgba(255, 255, 255, 0.296875);
+			border-style : solid;
+			border-color : rgb(100,100,100); 
+			border-width : 1px;	
+			border-radius : 4px;
+		}
+		.contents-outer
+		{
+			width:100%;
+			height:550px;
+			overflow:auto;
+		}
+		
+		.poetList
+		{
+			width: 100%;
+			height:550px;
+			overflow:auto;
+		}
+		
+		
+		.footer-outer
+		{
+			width : 100%;
+			height : 10%;
+			background-color : gray;
+			vertical-align: baseline;
+		}
+		.footer-outer p
+		{
+			display : inline-block;
+		}
+		
+		</style>
+		<script language="javascript" type="text/javascript" src="./js/jquery-1.7.1.js"></script>
+		<script language="javascript" type="text/javascript" src="./js/jquery-animate-css-rotate-scale.js"></script>
+		<script language="javascript" type="text/javascript">
+			String.prototype.replaceAll = function(stringToFind,stringToReplace){
+				return this.split(stringToFind).join(stringToReplace);  
+			};
+			Array.prototype.last = function() {return this[this.length-1];}
+			jQuery.fn.animateAuto = function(prop, speed, callback){
+			    var elem, height, width;
+			    return this.each(function(i, el){
+			        el = jQuery(el), elem = el.clone().css({"height":"auto","width":"auto"}).appendTo("body");
+			        height = elem.css("height"),
+			        width = elem.css("width"),
+			        elem.remove();
+
+			        if(prop === "height")
+			            el.animate({"height":height}, speed, callback);
+			        else if(prop === "width")
+			            el.animate({"width":width}, speed, callback);
+			        else if(prop === "both")
+			            el.animate({"width":width,"height":height}, speed, callback);
+			    });
+			};
+	
+			
+			
+			function generatePoetTable(rows){
+				var tableString;
+				for(var i=0;i<rows.length;i++)
+				{
+					var rowStr =
+					 "<tr>" +
+						"<td>" + rows[i].authorName + "</td>" + 
+						"<td>" + rows[i].mediaName  + "</td>" + 
+						"<td>" + rows[i].published_date + "</td>"+
+						"<td>" + rows[i].title + "</td>" + 	
+					 "</tr>";	
+					tableString += rowStr;
+				}
+			};
+			
+			function HighlightWord(word)
+			{
+				$paragraphs = $("#html-root").children(".PoetDiv");
+				for(var i=0;i<$paragraphs.length;i++)
+				{
+					var $div = $($paragraphs[i]);
+					var str = $div.html();
+					str = str.replaceAll(word,'<p class ="HighLightWord">' + word + '</p>');
+					$div.html(str);
+				}
+			}
+			
+			
+			function PoetDiv($parentDiv,poetJSON)
+			{
+				
+				this.parseText = function(originalText)
+				{
+					var resultText;
+					
+					var text = originalText;
+					
+					var components = text.split("[");
+					
+					resultText = components[0].replaceAll(".",".</br>");
+					
+					for(var i=1;i<components.length;i++)
+					{
+						var commentAndText = components[i].split("]");
+						if(commentAndText[0] != undefined)	
+							resultText += "<div>" + commentAndText[0] + "</div>";
+						if(commentAndText[1] != undefined)
+							resultText += commentAndText[1].replaceAll(".",".</br>");
+					}
+
+					return resultText;
+				};
+				
+				this.$poetJSON = poetJSON;
+				$parentDiv.append("<div></div>");
+				this.$div = $parentDiv.children("div").last(); 
+				this.$div.addClass("PoetDiv");
+				this.$div.append(poetJSON.authorName + "<br>" + 
+								 poetJSON.mediaName + "<br>" + 
+								 poetJSON.title + "   " +
+								 poetJSON.published_date + "<br>" + 
+								 this.parseText(poetJSON.text));
+				this.$div.children("div").click(function(){
+					if($(this).css("width") != "10px")
+						$(this).animate({"width" :"10px",
+										 "height":"13px"});
+					else
+					{
+						$(this).animateAuto("width");
+						$(this).animateAuto("height");
+					}
+				});
+			}
+			
+			function CommentDiv($parentDiv,comment)
+			{
+				$parentDiv.append("<div></div>");
+			 	this.$div = $parentDiv.children("div").last(); 
+				
+				$div.onclick(function(){
+					$(this).slideUp();
+				});
+				
+				
+				$div.append("<p>"+comment+"</p>");
+				this.$commentParagraph = $div.find("p");
+				$commentParagraph.css({
+					"font-color" : "red"
+				});
+			}
+			
+			function PoetSearch()
+			{
+				var searchingCall;
+				var POET_PAGE_SIZE = 20; // 한페이지에 보여줄 시 숫자.
+				
+				this.m_currentPage = 1;
+				this.m_maxPage = 1;
+				
+				this.m_lastQuery; 
+				
+				var outerThis = this;
+				
+				var generatePageLinks = function(maxPage)
+				{
+					$($(".footer-outer").children()).remove();
+					this.m_maxPage = maxPage;	
+					for(var i =0;i<maxPage;i++){
+						$(".footer-outer").append(" <a>"+(i+1)+"</a> ");
+					}
+					
+					var pageLinks = $(".footer-outer a");
+					for(var i=0;i<maxPage;i++){
+						$(pageLinks[i]).click(function(){
+							outerThis.moveToPage($(this).html(),outerThis.m_lastQuery);
+						});
+					}
+				};
+				var executeSearchQuery = function(query,generatePageBor)
+				{
+					$.getJSON("./testQuery.php",{
+						'query' : escape(query)
+					},function(result){
+						
+						if(generatePageBor == true)
+							generatePageLinks(result.rowCnt / POET_PAGE_SIZE);				
+					
+						var poetArray = result.data;
+						
+						/*
+						for(var i=0;i<poetArray.length;i++){
+							new PoetDiv($("#html-root"),poetArray[i]);
+						}*/
+						
+						$($("#poetList").children()).remove();
+						$("#poetList").append(generatePoetTable(poetArray));
+						
+						$("#loadingDiv").fadeOut("fast");
+						clearInterval(searchingCall);
+					});
+				};
+				
+				
+				this.moveToPage = function(page,query)
+				{
+					this.m_currentPage = page;
+					
+					this.m_lastQuery = query;
+					$("#html-root").children().remove();
+					
+					$("#loadingDiv").fadeIn("fast");
+					searchingCall = setInterval(function(){
+						var dotPar = $($("#loadingDiv").find("p")[1]);
+						if(dotPar.html().length < 6){
+							dotPar.html(dotPar.html()+".");
+						}
+						else{
+							dotPar.html(".");
+						}
+					},500);
+
+					
+					if(query.indexOf("limit") < 0)
+					{
+						var startIndex = POET_PAGE_SIZE * (this.m_currentPage - 1);
+						var endIndex   = POET_PAGE_SIZE * (this.m_currentPage ); 
+						query += " limit "+startIndex+","+endIndex;		
+					}
+
+					//초기호출하는 경우에 페이지 스크롤을 생성
+					executeSearchQuery(query,page == 1);
+				};
+				
+				this.onDoQuery = function(){
+					this.moveToPage(1,$("#query_input").val());
+				};
+				
+				
+			}
+			
+			var poetSearch = new PoetSearch();
+			
+					
+			
+	
+			
+
+			$(document).ready(function(){
+				$.ajaxSetup({
+					error:function(x,e){
+						if(x.status==0){
+							alert('You are offline!!\n Please Check Your Network.');
+						}else if(x.status==404){
+							alert('Requested URL not found.');
+						}else if(x.status==500){
+							alert('Internel Server Error.');
+						}else if(e=='parsererror'){
+							alert('Error.\nParsing JSON Request failed.');
+						}else if(e=='timeout'){
+						alert('Request Time out.');
+						}else {
+							alert('Unknow Error.\n'+x.responseText);
+						}
+						$("#loadingDiv").fadeOut("fast");
+						clearInterval(searchingCall);
+					}
+				});
+			});
+		</script>
+
+	</head>
+	<body>
+		<div class="page">
+		
+			<div class="header-outer">
+				<p>
+					Poet Web Database
+				</p>
+				<div class="searchBar">
+					<input id="query_input" style="width:auto" type = "text">
+					<input type="button" style="width:40px" onclick = "poetSearch.onDoQuery();">
+				</div>
+			</div>
+			<div class="contents-outer">
+				<div id="html-root"></div>	
+				<table id = "poetList"></table>
+			</div>
+			<div class = "footer-outer">
+				
+			</div>
+		</div>
+
+		<div id="loadingDiv"><br><br><br><p>Searching</p><p></p></div>
+	</body>
+</html>

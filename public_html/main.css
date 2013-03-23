@@ -1,0 +1,246 @@
+		DIV
+		{
+			font-family : "dotum";
+			font-size : 15px;
+		}
+		#loadingDiv
+		{
+			background-color:black;
+			left:0px;
+			top:0px;
+			width:100%;
+			height:100%;
+			text-align:center;
+			vertical-align:middle;
+			font-size:40px;
+			color:white;
+			position:absolute;
+			display:none;
+		}
+		/*
+		.CommentDiv
+		{
+			border-color : blue;
+			border-width : 1px;
+			border-style : solid;
+			text-align:center;
+			background-color : #FF3366;
+		}
+		*/
+		.HighLightWord
+		{
+			background-color : yellow;
+			display : inline;
+		}
+		.SearchObjectDiv
+		{
+			background-color : green;
+			display : inline-block;
+		}
+		.Poet,
+		.PoetDiv
+		{
+		}
+		.PoetDiv .comment_div
+		{
+			border-color : blue;
+			border-width : 1px;
+			border-style : solid;
+			text-align:center;
+			background-color : #FF3366;
+			display: inline-block;
+			border-radius: 13px;
+			
+			font-family : "dotum";
+			font-size : 15px;
+			
+			width:10px;
+			height:13px;
+			overflow:hidden;
+		}
+		.header-outer
+		{
+			width  : 100%;
+			height : 140px;
+			text-align : center;
+			vertical-align:middle;	
+			-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.25),0 -1px 0 rgba(0,0,0,0.1) inset;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.25),0 -1px 0 rgba(0,0,0,0.1) inset;
+			background: #00A0D1;
+			
+			color: white;
+			font-family: 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
+			font-size: 52px;
+			font-style: normal;
+			font-variant: normal;
+			font-weight: 300;
+			text-decoration:none;
+		}
+		
+		.searchBar
+		{
+			display:block;
+			height:20%;
+		}
+		#query_input
+		{
+			background-color : rgba(255, 255, 255, 0.296875);
+			border-style : solid;
+			border-color : rgb(100,100,100); 
+			border-width : 1px;	
+			border-radius : 4px;
+		}
+		.contents-outer
+		{
+			width:100%;
+			height:80%;
+			overflow:hidden;
+		}
+		
+		#poetList
+		{
+			width: 100%;
+			height:550px;
+			overflow:auto;
+		}
+		#poetList td
+		{
+			text-align:center;
+		}
+		
+		
+		.footer-outer
+		{
+			width : 100%;
+			height : 10%;
+			background-color : gray;
+			vertical-align: baseline;
+		}
+		.footer-outer p
+		{
+			display : inline-block;
+		}
+		.footer-outer .page_list
+		{
+			display : inline-block;
+			width:auto;
+			height: 20px;
+			
+		}
+		#query_view
+		{
+			width:auto;
+			height:30px;
+			background-color:white;
+			border-color:blue;
+			border-style:solid;
+			border-width:1px;
+			display:inline-block;
+		}
+		
+		.condition_container
+		{
+		}
+		.condition_container select,
+		.condition_container select option,
+		.condition_container input
+		{
+			background-color : rgba(255, 255, 255, 0.296875);
+			border-style : solid;
+			border-color : rgb(100,100,100); 
+			border-width : 1px;	
+			border-radius : 4px;
+		}
+		.condition_container .condition_connector_selector
+		{
+		}
+		.condition_container .search_value_input
+		{
+			width:100px;
+		}
+		
+		.condition_node
+		{
+			display:inline-block;	
+			width:310px;
+
+		}
+		.condition_node .delete_button
+		{
+			width:15px;
+			height:15px;
+			position:relative;
+			display:inline-block;
+			background-color:transparent;
+			background-size : 100% 100%;
+			
+			left : -5px;
+			top  : -10px;
+			
+			background-image:url("./image/remove_icon.png");
+		
+		}
+		.condition_node .condition_div
+		{
+			background-color:gray;	
+			display:inline-block;
+			width:238px;
+			
+			border-style : solid;
+			border-color : rgb(100,100,100); 
+			border-width : 1px;	
+			border-radius : 4px;
+		}
+		.media_select,
+		.poet_select,
+		.author_select
+		{
+			float:left;
+			display:inline-block;
+			width:400px;
+		}
+		.media_select input,
+		.poet_select input,
+		.author_select input
+		{
+			width:80px;
+			background-color : rgba(255, 255, 255, 0.296875);
+			border-style : solid;
+			border-color : rgb(100,100,100); 
+			border-width : 1px;	
+			border-radius : 4px;
+		}
+		
+		.contents_left
+		{
+			width:65%;
+			height:100%;
+			float:left;
+			overflow-y:scroll;
+		}
+		.contents_right
+		{
+			width:34%;
+			height:99%;
+			overflow-x :scroll;
+			float:right;
+			
+			border-color : black;
+			border-width : 3px;
+			border-style : solid;
+			text-align:center;
+			
+			font-family : "dotum";
+			font-size : 15px;
+			
+			background-color : #33CCFF;
+		
+		}
+		.contents_right .poet_loading_div
+		{
+			background-color : black;
+			left:0px;
+			top:0px;
+			width:100%;
+			height:100%;
+		}

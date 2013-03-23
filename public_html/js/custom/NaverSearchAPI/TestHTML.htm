@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<script type="text/javascript" src="../../jquery-1.7.1.min.js"></script> <!-- -->
+<script type="text/javascript" src="./NaverSearchMedia.js"></script>
+<script type="text/javascript">
+    var Search = new NaverSearchMedia();
+    function Display(Items) {
+        // Search 함수의 리턴값은 아이템 정보를 포함하는 배열이다(쿼리결과). 배열의 최대 length는 display인자에 명시된 숫자만큼이다, 각 배열의 내용은 JSON객체로, 쿼리 내용을 포함하고있다.
+        var jboard = $("#board");
+        var procstr = "";
+        for (var i = 0; i < Items.length; i++) {
+            for (var element in Items[i])
+                procstr += element + ": " + Items[i][element] + "<br/>";
+            procstr += "<br/>";
+        }
+        jboard.html(procstr);
+    }
+    $(document).ready(function () {
+        $("#BtnSearch").click(function () {
+            Display(Search.Search({ query: $("#TxtSearch").val(), target: $("#TxtCategory").val() }));
+        });
+        $("#BtnSearchMovie").click(function () {
+            Display(Search.SearchMovie({ query: $("#TxtSearch").val(), genre: 15 })); // genre 15는 애니메이션 장르
+        });
+        $("#BtnNextSearch").click(function () {
+            Display(Search.NextSearch());
+        });
+    });
+</script>
+<head>
+    <title></title>
+</head>
+<body>
+<div id="board">안녕</div> 
+검색 쿼리 <input type="text" value="사랑" id="TxtSearch"/><br />
+카테고리<input type="text" value="movie" id="TxtCategory"/><br />
+<input type="button" value="검색" id="BtnSearch"/>
+<input type="button" value="영화검색(애니메이션장르)" id="BtnSearchMovie"/>
+<input type="button" value="다음 검색" id="BtnNextSearch"/>
+</body>
+</html>

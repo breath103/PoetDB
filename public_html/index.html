@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+		<title>SKKU</title>
+		
+		<link href="./main.css" rel="stylesheet" type="text/css"/>
+			
+		<script language="javascript" type="text/javascript" src="./js/jquery-1.7.1.min.js"></script>
+		<script language="javascript" type="text/javascript" src="./js/jquery-animate-css-rotate-scale.js"></script>
+		<script language="javascript" type="text/javascript" src="./js/custom/macro.js"></script>
+		<script language="javascript" type="text/javascript" src="./highlightor.js"></script>
+		<script language="javascript" type="text/javascript" src="./conditions.js"></script>
+		<script language="javascript" type="text/javascript" src="./poet.js"></script>
+		
+		<script language="javascript" type="text/javascript">
+		
+		
+			var g_lastPoetRows;
+			function showPoet(i)
+			{
+				$.getJSON("./getPoet.php",{
+						'poet_id' : g_lastPoetRows[i].idx
+					},function(result){
+						$($(".contents_right").children()).remove();
+						var poetDiv = new PoetDiv($(".contents_right"),g_lastPoetRows[i]);		
+					///	highlightor.highlightWord();
+					});
+			}
+			function generatePoetTable(rows){
+			
+				
+				g_lastPoetRows = rows;
+				
+				var tableString="";
+				for(var i=0;i<rows.length;i++)
+				{
+					var rowStr =
+					 "<tr>" +
+						'<td class="poet_authorName">' + rows[i].authorName + "</td>" + 
+						'<td class="poet_mediaName">' + rows[i].mediaName  + "</td>" + 
+						'<td class="poet_category">' + rows[i].category + '</td>' +
+						'<td class="poet_page">' + rows[i].page + "</td>"+
+						'<td class="poet_published_date">' + rows[i].published_date + "</td>"+
+						'<td class="poet_title"><a href="#html-root" onclick="showPoet('+i+')">' + rows[i].title + "<a></td>" + 	
+					 "</tr>";	
+					tableString += rowStr;
+				}
+				
+				if(rows.length < 1)
+				{
+					tableString = "<tr><td>검색 결과가 없습니다.</td><tr>";
+				}
+				
+				return tableString;
+			};
+			
+			var highlightor = new Highlightor();		
+			
+            var g_searchMethods = [{
+                "name": "일치",
+				"queryBuilder" : function(leftValue,rightValue){
+					highlightor.addWord(leftValue,rightValue);
+					return "("+leftValue+" = '"+rightValue+"')";
+				}
+            }, {
+                "name": "불일치",
+				"queryBuilder" : function(leftValue,rightValue){
+					return "("+leftValue+" != '"+rightValue+"')";
+				}
+            }, {
+                "name": "포함",
+				"queryBuilder" : function(leftValue,rightValue){
+					highlightor.addWord(leftValue,rightValue);
+					return "("+leftValue+" like '%"+rightValue+"%')";
+				}
+            }, {
+                "name": "불포함",
+				"queryBuilder" : function(leftValue,rightValue){
+					return "("+leftValue+" not like '%"+rightValue+"%')";
+				}
+            }, {
+                "name": ">=",
+				"queryBuilder" : function(leftValue,rightValue){
+					return "("+leftValue+" >= '"+rightValue+"')";
+				}
+            }, {
+                "name": "<=",
+				"queryBuilder" : function(leftValue,rightValue){
+					return "("+leftValue+" <= '"+rightValue+"')";
+				}
+            }];
+			var g_conditionConnectors = [
+				{"name" : "and"},
+				{"name" : "or"}
+			];
+            var g_tableValues = [{
+                "name": "저자명",
+                "dbname": "authorName",
+				"type" : "string"
+            }, {
+                "name": "매체명",
+                "dbname": "mediaName",
+				"type" : "string"
+            }, {
+                "name": "출간일",
+                "dbname": "published_date",
+				"type" : "number"
+            }, {
+                "name": "권",
+                "dbname": "volume",
+				"type" : "number"
+            }, {
+                "name": "호",
+                "dbname": "unit",
+				"type" : "number"
+            }, {
+                "name": "면",
+                "dbname": "page",
+				"type" : "number"
+            }, {
+                "name": "개제면",
+                "dbname": "category",
+				"type" : "string"
+            }, {
+                "name": "제목",
+                "dbname": "title",
+				"type" : "string"
+            }, {
+                "name": "본",
+                "dbname": "text",
+				"type" : "string"
+            }];
+			function getDBInfo(name){
+				for(var i =0;i<g_tableValues.length;i++){
+					if(g_tableValues[i].name == name)
+						return g_tableValues[i];
+				}
+			}
+			function getOperatorInfo(name){
+				for(var i =0;i<g_searchMethods.length;i++){
+					if(g_searchMethods[i].name == name)
+						return g_searchMethods[i];
+				}
+			}
+			var g_operatorListForType = {
+				"string" : ["포함","불포함","일치","불일치"],
+				"number" : ["일치","불일치","<=",">="]
+			}
+			
+			
+			var g_conditionNodes = new Array();
+			
+			
+			function buildQuery()
+			{
+				var query = "";
+				for(var i=0;i<g_conditionNodes.length;i++){
+					var node = g_conditionNodes[i];
+					
+					if (node.isValid()) {
+						var operatorInfo = getOperatorInfo(node.getOperator());
+						var dbInfo = getDBInfo(node.getLeftValue());
+						
+						query += node.getConnectingOperator() + " ";
+						query += operatorInfo.queryBuilder(dbInfo.dbname, node.getRightValue());
+						query += " ";
+					}
+					else
+					{
+						alert("제대로 채워지지 않은 검색 조건이 있습니다.");
+						node.$containerDiv.animate({
+							"background-color" : "red"
+						}).animate({
+							"background-color" : "none"
+						});
+					}
+				}
+				return query;
+			}
+			
+			function onNewCondition()
+			{
+				if (g_conditionNodes.last().isValid()) {
+					var node = new ConditionNode();
+					node.$containerDiv.css({
+						"display" : "none"
+					});
+					node.$containerDiv.fadeIn("fast");
+				}
+				else{
+					alert("제대로 채워지지 않은 검색 조건이 있습니다.");
+				}
+			}
+			
+			
+			var poetSearch = new PoetSearch();
+			
+					
+			
+	
+			$(document).ready(function(){
+				
+				new ConditionNode();
+				
+				$.ajaxSetup({
+					error:function(x,e){
+						if(x.status==0){
+							alert('You are offline!!\n Please Check Your Network.');
+						}else if(x.status==404){
+							alert('Requested URL not found.');
+						}else if(x.status==500){
+							alert('Internel Server Error.');
+						}else if(e=='parsererror'){
+							alert('Error.\nParsing JSON Request failed.');
+						}else if(e=='timeout'){
+						alert('Request Time out.');
+						}else {
+							alert('Unknow Error.\n'+x.responseText);
+						}
+						$("#loadingDiv").fadeOut("fast");
+						clearInterval(searchingCall);
+					}
+				});
+			});
+			
+		</script>
+
+	</head>
+	<body>
+		<div class="page">
+		
+			<div class="header-outer">
+				<p>Database</p>
+				<div class="searchBar">
+					<div class="condition_container">	
+					</div>		
+					<input onclick = "onNewCondition()" type=button value="검색조건 추가">
+					</br>
+					<input type="button" value ="검색" style="width:70px" onclick = "poetSearch.onDoQuery();">
+								
+				</div>
+			</div>
+			<div class="contents-outer">
+				<div id="html-root"></div>	
+				<div class="contents_left">
+					<table id = "poetList">
+						<thead>
+							<th style="width:80px"></th>
+							<th style="width:100px"></th>
+							<th style="width:100px"></th>
+							<th style="width:50px"></th>
+							<th style="width:120px"></th>
+							<th></th>
+						</thead>
+					</table>
+				</div>
+				<iframe src = "poetView.php?poet_id=5000" class="contents_right">
+					
+				</iframe>
+			</div>
+			<div class = "footer-outer">
+				<div class="page_list"></div>
+			</div>
+		</div>
+
+		<div id="loadingDiv"><br><br><br><p>Searching</p><p></p></div>
+	</body>
+</html>
